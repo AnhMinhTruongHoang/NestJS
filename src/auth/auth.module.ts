@@ -6,6 +6,7 @@ import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from 'src/stateless/passport/stateless.jwt.strategy';
+import ms from 'ms';
 
 @Module({
   imports: [
@@ -14,9 +15,9 @@ import { JwtStrategy } from 'src/stateless/passport/stateless.jwt.strategy';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (ConfigService: ConfigService) => ({
-        secret: ConfigService.get<string>('JWT_SECRET'),
+        secret: ConfigService.get<string>('JWT_ACCESS_TOKEN'),
         signOptions: {
-          expiresIn: ConfigService.get<string>('JWT_EXPIRE'),
+          expiresIn: ms(ConfigService.get<string>('JWT_ACCESS_EXPIRE')),
         },
       }),
       inject: [ConfigService],
