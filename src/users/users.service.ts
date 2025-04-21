@@ -1,10 +1,10 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 
@@ -98,5 +98,29 @@ export class UsersService implements OnModuleInit {
 
   isValidPassword(password: string, hash: string) {
     return compareSync(password, hash);
+  }
+
+  ///////////// register from auth service
+
+  async register(user: RegisterUserDto) {
+    const { name, email, password, age, gender, address } = user;
+    const hashPassword = this.getHashPassword(password);
+
+    const isExist = await this.userModel.findOne({ email });
+    if (isExist) {
+      throw new BadRequestException(`The Email ${email} existing`);
+    } ///////// check gmail
+
+    let newRegister = await this.userModel.create({
+      name,
+      email,
+      password: hashPassword,
+      age,
+      gender,
+      address,
+      role: 'USER',
+    });
+
+    return newRegister;
   }
 }
