@@ -54,6 +54,9 @@ export class CreateUserDto {
 ///////////// register vail
 
 export class RegisterUserDto {
+  @IsNotEmpty({ message: "Name mustn't empty" })
+  name?: string;
+
   @IsNotEmpty({
     message: "Email can't be empty",
   })
@@ -63,17 +66,14 @@ export class RegisterUserDto {
   @IsNotEmpty({ message: 'password should not be empty' })
   password: string;
 
-  @IsNotEmpty({ message: "Name mustn't empty" })
-  name?: string;
-
   @IsNotEmpty({ message: "Age mustn't empty" })
   age?: number;
 
   @IsNotEmpty({ message: "Gender mustn't empty" })
   gender?: string;
 
-  phone?: number;
-
   @IsNotEmpty({ message: "Address mustn't empty" })
   address?: string;
+
+  phone?: number;
 }

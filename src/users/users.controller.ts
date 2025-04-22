@@ -6,40 +6,62 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Public, ResponseMessage, Users } from 'src/decorator/customize';
+import { IUser } from './user.interface';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(
+  @ResponseMessage('Create New User')
+  async create(
     @Body()
     createUserDto: CreateUserDto,
+    @Users() user: IUser,
   ) {
-    return this.usersService.create(createUserDto);
+    let NewUser = await this.usersService.create(createUserDto, user);
+    return {
+      _id: NewUser?._id,
+      createdAt: NewUser?.createdAt,
+      createdBy: NewUser?.createdBy,
+    };
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @ResponseMessage('Fetch user with paginate')
+  findAll(
+    @Query('page') currentPage: string,
+    @Query('limit') limit: string,
+    @Query() qs: string,
+  ) {
+    return this.usersService.findAll(+currentPage, +limit, qs);
   }
 
+  @Public()
+  @ResponseMessage('fetch user by id')
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const foundUser = this.usersService.findOne(id);
+    return foundUser;
   }
 
+  @ResponseMessage('Update a User')
   @Patch()
-  update(@Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(updateUserDto);
+  async update(@Body() updateUserDto: UpdateUserDto, @Users() users: IUser) {
+    let updateUser = await this.usersService.update(updateUserDto, users);
+
+    return updateUser;
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  @ResponseMessage('Delete a USer')
+  remove(@Param('id') id: string, @Users() users: IUser) {
+    return this.usersService.remove(id, users);
   }
 }
