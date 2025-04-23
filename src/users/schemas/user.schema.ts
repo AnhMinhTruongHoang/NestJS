@@ -26,6 +26,9 @@ export class User {
   @Prop()
   address: string;
 
+  @Prop()
+  role: string;
+
   @Prop({ type: Object })
   company: {
     _id: mongoose.Schema.Types.ObjectId;

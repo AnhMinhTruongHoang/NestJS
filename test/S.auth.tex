@@ -34,19 +34,11 @@ export class AuthService {
     return null;
   }
 
-  //auth.service.ts login
+  //auth.service.ts
   async login(user: IUser, response: Response) {
     const { _id, name, email, role } = user;
 
-    const payload = {
-      sub: _id.toString(),
-      iss: 'from server',
-      name,
-      email,
-      role,
-    };
-
-    const refresh_token = this.createRefreshToken(payload);
+    const refresh_token = this.createRefreshToken({ name: 'minh' });
 
     await this.usersService.updateUserToken(refresh_token, _id);
 
@@ -55,13 +47,26 @@ export class AuthService {
       maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
     });
 
+    const payload = {
+      sub: 'token login',
+      iss: 'from server',
+      _id,
+      name,
+      email,
+      role,
+    };
+
     return {
       access_token: this.jwtService.sign(payload),
       refresh_token,
-      user: { _id, name, email, role },
+      user: {
+        _id,
+        name,
+        email,
+        role,
+      },
     };
   }
-
   ///////////// logout
   logout = async (response: Response, user: IUser) => {
     await this.usersService.updateUserToken('', user._id);
@@ -99,13 +104,13 @@ export class AuthService {
         const { _id, name, email, role } = user;
 
         const payload = {
-          sub: _id.toString(),
+          sub: 'token refresh',
           iss: 'from server',
+          _id,
           name,
           email,
           role,
         };
-
         const refresh_token = this.createRefreshToken(payload);
 
         await this.usersService.updateUserToken(refresh_token, _id.toString());

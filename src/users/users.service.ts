@@ -194,4 +194,9 @@ export class UsersService implements OnModuleInit {
     ///update user token
     return await this.userModel.updateOne({ _id }, { refreshToken });
   };
+
+  findUserByToken = async (refreshToken: string) => {
+    ///update user token
+    return await this.userModel.findOne({ refreshToken });
+  };
 }

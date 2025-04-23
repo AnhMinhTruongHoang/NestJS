@@ -15,6 +15,7 @@ import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { Request, Response } from 'express';
 import { IUser } from 'src/users/user.interface';
 import { request } from 'http';
+import { use } from 'passport';
 
 @Controller('auth')
 export class AuthController {
@@ -36,6 +37,17 @@ export class AuthController {
     return this.authService.login(req.user, response);
   }
 
+  //////////// logout
+  @ResponseMessage('User logout')
+  @Post('/logout')
+  handleLogout(
+    @Res({ passthrough: true })
+    response: Response,
+    @Users() user: IUser,
+  ) {
+    return this.authService.logout(response, user);
+  }
+
   /////////////// register
   @Public()
   @ResponseMessage('Register a new user !')
@@ -55,8 +67,12 @@ export class AuthController {
   @Public()
   @ResponseMessage('Get user refresh_token')
   @Get('/refresh')
-  handleGetRefreshToken(@Req() request: Request) {
+  handleGetRefreshToken(
+    @Req() request: Request,
+    @Res({ passthrough: true })
+    response: Response,
+  ) {
     const refreshToken = request.cookies['refresh_token'];
-    return this.authService.processNewToken(refreshToken);
+    return this.authService.processNewToken(refreshToken, response);
   }
 }
