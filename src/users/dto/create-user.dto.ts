@@ -51,7 +51,7 @@ export class CreateUserDto {
   company: Company; //// {} type valid
 }
 
-///////////// register vail
+///////////// register valid
 
 export class RegisterUserDto {
   @IsNotEmpty({ message: "Name mustn't empty" })
