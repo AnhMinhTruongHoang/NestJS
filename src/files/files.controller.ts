@@ -20,12 +20,13 @@ export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('images')) //tên field sử dụng trong form-data
+  @UseInterceptors(FileInterceptor('fileUpload')) //tên field sử dụng trong form-data
   uploadFile(
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          fileType: /^image\/(jpeg|png|gif|bmp|webp|svg\+xml)$/i,
+          fileType:
+            /^(jpg|jpeg|image\/jpeg|image\/png|gif|txt|webp|pdf|application|image\/jpg|svg\+xml|text\/plain)$/i,
         })
         .addMaxSizeValidator({
           maxSize: 1024 * 1000,

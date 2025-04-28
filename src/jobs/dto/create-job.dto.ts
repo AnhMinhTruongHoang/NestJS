@@ -1,6 +1,5 @@
 import { Type } from 'class-transformer';
 import {
-  IsDate,
   IsNotEmpty,
   IsNotEmptyObject,
   IsNumber,
@@ -11,7 +10,6 @@ import {
   IsMongoId,
   ValidateNested,
 } from 'class-validator';
-import mongoose from 'mongoose';
 
 class Company {
   @IsMongoId({ message: 'Invalid company ID' })
@@ -56,6 +54,9 @@ export class CreateJobDto {
   @IsNotEmpty({ message: "Description can't be empty" })
   @IsString()
   description: string;
+
+  @IsNotEmpty({ message: 'logo is empty' })
+  logo: string;
 
   @IsNotEmpty({ message: 'Start date must be set' })
   @IsNumber()
