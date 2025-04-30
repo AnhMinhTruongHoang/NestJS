@@ -5,9 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Resume, ResumeDocument } from './schemas/resume.schemas';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/user.interface';
-import { ResumesModule } from './resumes.module';
 import { Users } from 'src/decorator/customize';
-import { use } from 'passport';
 import mongoose from 'mongoose';
 import aqp from 'api-query-params';
 
@@ -29,7 +27,7 @@ export class ResumesService {
       email,
       jobId,
       userId: _id,
-
+      status: 'PENDING',
       createdBy: { _id, email },
       history: [
         {
@@ -95,7 +93,7 @@ export class ResumesService {
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, sort, population } = aqp(qs);
+    const { filter, sort, population, projection } = aqp(qs);
 
     delete filter.current;
     delete filter.pageSize;
@@ -112,6 +110,7 @@ export class ResumesService {
       .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
+      .select(projection as any)
       .exec();
 
     return {
@@ -133,9 +132,9 @@ export class ResumesService {
     });
   }
 
-  findOneByUserName(username: string) {
-    return this.resumeModel.findOne({
-      email: username,
+  async findByUsers(user: IUser) {
+    return await this.resumeModel.find({
+      userId: user._id,
     });
   }
 }

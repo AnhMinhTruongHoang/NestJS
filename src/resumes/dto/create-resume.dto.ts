@@ -2,7 +2,6 @@ import {
   IsEmail,
   IsMongoId,
   IsNotEmpty,
-  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -34,7 +33,6 @@ class HistoryDto {
 }
 
 export class CreateResumeDto {
-  @IsNotEmpty({ message: 'Email cannot be empty' })
   @IsEmail({}, { message: 'Email must be valid' })
   email: string;
 
