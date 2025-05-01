@@ -17,7 +17,7 @@ export class CreateRoleDto {
   @IsBoolean()
   isActive: boolean;
 
-  @IsNotEmpty({ message: 'perrmissions is not empty' })
+  @IsNotEmpty({ message: 'permissions is not empty' })
   @IsArray()
   @IsMongoId({ each: true })
   permissions: mongoose.Schema.Types.ObjectId[];

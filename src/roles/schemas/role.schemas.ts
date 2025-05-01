@@ -12,13 +12,13 @@ export class Roles {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ required: true })
-  isActive: boolean;
-
   @Prop({
     type: [{ type: [mongoose.Schema.Types.ObjectId], ref: Permission.name }],
   })
   permissions: mongoose.Types.ObjectId[];
+
+  @Prop({ required: true })
+  isActive: boolean;
 
   @Prop()
   isDeleted: boolean;
