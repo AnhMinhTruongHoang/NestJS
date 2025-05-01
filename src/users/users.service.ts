@@ -92,8 +92,15 @@ export class UsersService implements OnModuleInit {
   }
 
   async remove(id: string, users: IUser) {
+    ///admin@gmail.com def admin
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return 'not found user';
+    }
+
+    const foundUser = await this.userModel.findById(id);
+
+    if (foundUser.email === 'admin@gmail.com') {
+      throw new BadRequestException("Can't delete admin");
     }
 
     await this.userModel.updateOne(
@@ -149,13 +156,16 @@ export class UsersService implements OnModuleInit {
       .findOne({
         _id: id,
       })
-      .select('-password'); /// not return password when call
+      .select('-password') /// not return password when call
+      .populate({ path: 'role', select: { name: 1, _id: 1 } });
   }
 
   findOneByUserName(username: string) {
-    return this.userModel.findOne({
-      email: username,
-    });
+    return this.userModel
+      .findOne({
+        email: username,
+      })
+      .populate({ path: 'role', select: { name: 1, permissions: 1 } });
   }
 
   async findByEmail(email: string) {

@@ -43,9 +43,6 @@ export class RolesService {
   async update(_id: string, updateRoleDto: UpdateRoleDto, user: IUser) {
     const { name, description, isActive, permissions } = updateRoleDto;
 
-    if (!mongoose.Types.ObjectId.isValid(name)) {
-      throw new BadRequestException('Role not found');
-    }
     const updated = await this.rolesModel.updateOne(
       { _id },
       {
@@ -65,6 +62,12 @@ export class RolesService {
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return 'ID not found ';
+    }
+
+    const foundRole = await this.rolesModel.findById(id);
+
+    if (foundRole.name === 'ADMIN') {
+      throw new BadRequestException("Can't delete admin");
     }
 
     await this.rolesModel.updateOne(
@@ -118,7 +121,7 @@ export class RolesService {
 
     return (await this.rolesModel.findById(id)).populate({
       path: 'permissions',
-      select: { _id: 1, apiPath: 1, name: 1, method: 1 },
+      select: { _id: 1, apiPath: 1, name: 1, method: 1, module: 1 },
     });
   }
 }

@@ -14,8 +14,6 @@ import { UsersService } from 'src/users/users.service';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { Request, Response } from 'express';
 import { IUser } from 'src/users/user.interface';
-import { request } from 'http';
-import { use } from 'passport';
 
 @Controller('auth')
 export class AuthController {
