@@ -1,47 +1,48 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import mongoose, { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from './schemas/user.schema';
-import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
 import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { User as UserM, UserDocument } from './schemas/user.schema';
+import mongoose, { Model } from 'mongoose';
+import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import { IUser } from './user.interface';
-import { Users } from 'src/decorator/customize';
 import aqp from 'api-query-params';
 import { USER_ROLE } from 'src/databases/sample';
 import { Roles, RolesDocument } from 'src/roles/schemas/role.schemas';
+import { Users } from 'src/decorator/customize';
+import { IUser } from './user.interface';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name)
+    @InjectModel(UserM.name)
     private userModel: SoftDeleteModel<UserDocument>,
 
     @InjectModel(Roles.name)
     private roleModel: SoftDeleteModel<RolesDocument>,
   ) {}
 
-  getHashPassword = (plain: string) => {
+  getHashPassword = (password: string) => {
     const salt = genSaltSync(10);
-    const hash = hashSync('B4c0//', salt);
+    const hash = hashSync(password, salt);
     return hash;
-    // Store hash in your password DB
   };
 
-  ////////////// crud
-  async create(createUserDto: CreateUserDto, @Users() users: IUser) {
+  async create(createUserDto: CreateUserDto, @Users() user: IUser) {
     const { name, email, password, age, gender, address, role, company } =
       createUserDto;
 
+    //add logic check email
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
-      throw new BadRequestException(`The Email ${email} existing`);
-    } ///////// check gmail
+      throw new BadRequestException(
+        `Email: ${email} đã tồn tại trên hệ thống. Vui lòng sử dụng email khác.`,
+      );
+    }
 
     const hashPassword = this.getHashPassword(password);
 
-    let NewUser = await this.userModel.create({
+    let newUser = await this.userModel.create({
       name,
       email,
       password: hashPassword,
@@ -51,58 +52,41 @@ export class UsersService {
       role,
       company,
       createdBy: {
-        _id: users._id,
-        email: users.email,
+        _id: user._id,
+        email: user.email,
       },
     });
-
-    return NewUser;
+    return newUser;
   }
 
-  async update(updateUserDto: UpdateUserDto, @Users() users: IUser) {
-    const updated = await this.userModel.updateOne(
-      { _id: updateUserDto._id },
-      {
-        ...updateUserDto,
-        updatedBy: {
-          _id: users._id,
-          email: users.email,
-        },
-      },
-    );
-    return updated;
-  }
-
-  async remove(id: string, users: IUser) {
-    ///admin@gmail.com def admin
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'not found user';
+  async register(user: RegisterUserDto) {
+    const { name, email, password, age, gender, address } = user;
+    //add logic check email
+    const isExist = await this.userModel.findOne({ email });
+    if (isExist) {
+      throw new BadRequestException(
+        `Email: ${email} đã tồn tại trên hệ thống. Vui lòng sử dụng email khác.`,
+      );
     }
 
-    const foundUser = await this.userModel.findById(id);
+    //fetch user role
+    const userRole = await this.roleModel.findOne({ name: USER_ROLE });
 
-    if (foundUser.email === 'admin@gmail.com') {
-      throw new BadRequestException("Can't delete admin");
-    }
-
-    await this.userModel.updateOne(
-      { _id: id },
-      {
-        deletedBy: {
-          _id: users._id,
-          email: users.email,
-        },
-      },
-    );
-    return this.userModel.softDelete({
-      _id: id,
+    const hashPassword = this.getHashPassword(password);
+    let newRegister = await this.userModel.create({
+      name,
+      email,
+      password: hashPassword,
+      age,
+      gender,
+      address,
+      role: userRole?._id,
     });
+    return newRegister;
   }
 
-  /////////////
   async findAll(currentPage: number, limit: number, qs: string) {
     const { filter, sort, population } = aqp(qs);
-
     delete filter.current;
     delete filter.pageSize;
 
@@ -117,6 +101,7 @@ export class UsersService {
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
+      .select('-password')
       .populate(population)
       .exec();
 
@@ -132,64 +117,74 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) return 'user not found';
+    if (!mongoose.Types.ObjectId.isValid(id)) return `not found user`;
 
-    return this.userModel
+    return await this.userModel
       .findOne({
         _id: id,
       })
-      .select('-password') /// not return password when call
+      .select('-password')
       .populate({ path: 'role', select: { name: 1, _id: 1 } });
+
+    //exclude >< include
   }
 
-  findOneByUserName(username: string) {
+  findOneByUsername(username: string) {
     return this.userModel
       .findOne({
         email: username,
       })
-      .populate({ path: 'role', select: { name: 1 } });
-  }
-
-  async findByEmail(email: string) {
-    return await this.userModel.findOne({ email });
+      .populate({
+        path: 'role',
+        select: { name: 1 },
+      });
   }
 
   isValidPassword(password: string, hash: string) {
     return compareSync(password, hash);
   }
 
-  ///////////// register from auth service
+  async update(updateUserDto: UpdateUserDto, user: IUser) {
+    const updated = await this.userModel.updateOne(
+      { _id: updateUserDto._id },
+      {
+        ...updateUserDto,
+        updatedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
+    );
+    return updated;
+  }
 
-  async register(user: RegisterUserDto) {
-    const { name, email, password, age, gender, address } = user;
-    const userRole = await this.roleModel.findOne({ name: USER_ROLE }); /// get role from role servives
-    const hashPassword = this.getHashPassword(password);
+  async remove(id: string, user: IUser) {
+    if (!mongoose.Types.ObjectId.isValid(id)) return `not found user`;
 
-    const isExist = await this.userModel.findOne({ email });
-    if (isExist) {
-      throw new BadRequestException(`The Email ${email} existing`);
-    } ///////// check gmail
+    const foundUser = await this.userModel.findById(id);
+    if (foundUser && foundUser.email === 'admin@gmail.com') {
+      throw new BadRequestException('Không thể xóa tài khoản admin@gmail.com');
+    }
 
-    let newRegister = await this.userModel.create({
-      name,
-      email,
-      password: hashPassword,
-      age,
-      gender,
-      address,
-      role: userRole?._id,
+    await this.userModel.updateOne(
+      { _id: id },
+      {
+        deletedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
+    );
+    return this.userModel.softDelete({
+      _id: id,
     });
-
-    return newRegister;
   }
 
   updateUserToken = async (refreshToken: string, _id: string) => {
-    ///update user token
     return await this.userModel.updateOne({ _id }, { refreshToken });
   };
 
   findUserByToken = async (refreshToken: string) => {
-    ///update user token
     return await this.userModel.findOne({ refreshToken }).populate({
       path: 'role',
       select: { name: 1 },

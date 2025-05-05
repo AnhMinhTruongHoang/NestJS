@@ -15,7 +15,7 @@ export class SessionSerializer extends PassportSerializer {
 
   // The result of the deserializeUser function gets attached to the request object.
   async deserializeUser(username: string, done: Function) {
-    const user = await this.usersService.findByEmail(username);
+    const user = await this.usersService.findUserByToken(username);
 
     if (!user) {
       return done(

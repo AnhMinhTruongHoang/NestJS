@@ -1,21 +1,18 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UpdatePermissionDto } from './dto/update-permission.dto';
-
-import { InjectModel } from '@nestjs/mongoose';
-import { Permission, PermissionsDocument } from './schemas/permission.schemas';
-import { ConfigService } from '@nestjs/config';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { CreatePermissionDto } from './dto/create-permission.dto';
-import { IUser } from 'src/users/user.interface';
-import mongoose from 'mongoose';
+import { UpdatePermissionDto } from './dto/update-permission.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import aqp from 'api-query-params';
+import mongoose from 'mongoose';
+import { Permission, PermissionsDocument } from './schemas/permission.schemas';
+import { IUser } from 'src/users/user.interface';
 
 @Injectable()
 export class PermissionsService {
   constructor(
     @InjectModel(Permission.name)
     private permissionModel: SoftDeleteModel<PermissionsDocument>,
-    private configService: ConfigService,
   ) {}
 
   async create(createPermissionDto: CreatePermissionDto, user: IUser) {
@@ -24,7 +21,7 @@ export class PermissionsService {
     const isExist = await this.permissionModel.findOne({ apiPath, method });
     if (isExist) {
       throw new BadRequestException(
-        `Permission with apiPath=${apiPath} , method=${method} already exists`,
+        `Permission với apiPath=${apiPath} , method=${method} đã tồn tại!`,
       );
     }
 
@@ -39,12 +36,14 @@ export class PermissionsService {
       },
     });
 
-    return newPermission;
+    return {
+      _id: newPermission?._id,
+      createdAt: newPermission?.createdAt,
+    };
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
     const { filter, sort, population, projection } = aqp(qs);
-
     delete filter.current;
     delete filter.pageSize;
 
@@ -74,12 +73,12 @@ export class PermissionsService {
     };
   }
 
-  findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) return 'Permission not found';
+  async findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('not found permission');
+    }
 
-    return this.permissionModel.findOne({
-      _id: id,
-    });
+    return await this.permissionModel.findById(id);
   }
 
   async update(
@@ -88,12 +87,17 @@ export class PermissionsService {
     user: IUser,
   ) {
     if (!mongoose.Types.ObjectId.isValid(_id)) {
-      throw new BadRequestException('not found resume');
+      throw new BadRequestException('not found permission');
     }
+    const { module, method, apiPath, name } = updatePermissionDto;
+
     const updated = await this.permissionModel.updateOne(
       { _id },
       {
-        ...updatePermissionDto,
+        module,
+        method,
+        apiPath,
+        name,
         updatedBy: {
           _id: user._id,
           email: user.email,
@@ -104,10 +108,6 @@ export class PermissionsService {
   }
 
   async remove(id: string, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'not found Resume';
-    }
-
     await this.permissionModel.updateOne(
       { _id: id },
       {

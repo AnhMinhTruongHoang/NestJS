@@ -10,7 +10,7 @@ export class StatelessService {
   ) {}
 
   async validateUserStateless(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findByEmail(username);
+    const user = await this.usersService.findOneByUsername(username);
     if (!user) {
       return null;
     }

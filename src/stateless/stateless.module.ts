@@ -15,10 +15,6 @@ import { UsersModule } from 'src/users/users.module';
   imports: [
     UsersModule,
     PassportModule,
-    // JwtModule.({
-    //   secret: jwtConstants.secret,
-    //   signOptions: { expiresIn: '60s' },
-    // }),
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),

@@ -6,7 +6,7 @@ export class StatefulService {
   constructor(private readonly usersService: UsersService) {}
 
   async validateUserStateful(username: string, password: string) {
-    const user = await this.usersService.findByEmail(username);
+    const user = await this.usersService.findOneByUsername(username);
     if (!user) {
       throw new NotAcceptableException(
         `could not find the user with username = ${username}`,

@@ -17,9 +17,9 @@ export class AuthService {
     private rolesService: RolesService,
   ) {}
 
-  //ussername/ pass là 2 tham số thư viện passport nó ném về
+  // `username` and `password` are two parameters that the Passport library passes in
   async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOneByUserName(username);
+    const user = await this.usersService.findOneByUsername(username);
     if (user) {
       const isValid = this.usersService.isValidPassword(pass, user.password);
       if (isValid === true) {
@@ -51,10 +51,10 @@ export class AuthService {
 
     const refresh_token = this.createRefreshToken(payload);
 
-    //update user with refresh token
+    // Update the user with the refresh token
     await this.usersService.updateUserToken(refresh_token, _id);
 
-    //set refresh_token as cookies
+    // Set the refresh_token as a cookie
     response.cookie('refresh_token', refresh_token, {
       httpOnly: true,
       maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
@@ -109,16 +109,17 @@ export class AuthService {
 
         const refresh_token = this.createRefreshToken(payload);
 
-        //update user with refresh token
+        // Update the user with the refresh token
         await this.usersService.updateUserToken(refresh_token, _id.toString());
 
-        //fetch user's role
+        // Fetch the user's role
         const userRole = user.role as unknown as { _id: string; name: string };
         const temp = await this.rolesService.findOne(userRole._id);
 
-        //set refresh_token as cookies
+        // Clear the old refresh_token cookie
         response.clearCookie('refresh_token');
 
+        // Set the new refresh_token as a cookie
         response.cookie('refresh_token', refresh_token, {
           httpOnly: true,
           maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
@@ -136,12 +137,12 @@ export class AuthService {
         };
       } else {
         throw new BadRequestException(
-          `Refresh token không hợp lệ. Vui lòng login.`,
+          `The refresh token is invalid. Please log in.`,
         );
       }
     } catch (error) {
       throw new BadRequestException(
-        `Refresh token không hợp lệ. Vui lòng login.`,
+        `The refresh token is invalid. Please log in.`,
       );
     }
   };
