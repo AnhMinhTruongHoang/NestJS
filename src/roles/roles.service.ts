@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { IUser } from 'src/users/user.interface';
 import mongoose from 'mongoose';
 import aqp from 'api-query-params';
+import { ADMIN_ROLE } from 'src/databases/sample';
 
 @Injectable()
 export class RolesService {
@@ -66,7 +67,7 @@ export class RolesService {
 
     const foundRole = await this.rolesModel.findById(id);
 
-    if (foundRole.name === 'ADMIN') {
+    if (foundRole.name === ADMIN_ROLE) {
       throw new BadRequestException("Can't delete admin");
     }
 
@@ -117,7 +118,9 @@ export class RolesService {
   }
 
   async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) return 'Role not found';
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('not found role');
+    }
 
     return (await this.rolesModel.findById(id)).populate({
       path: 'permissions',

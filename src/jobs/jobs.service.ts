@@ -1,4 +1,4 @@
-import { BadRequestException, Get, Injectable, Query } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { ConfigService } from '@nestjs/config';
@@ -7,7 +7,6 @@ import { Jobs, JobsDocument } from './schemas/job.schemas';
 import { InjectModel } from '@nestjs/mongoose';
 import { IUser } from 'src/users/user.interface';
 import mongoose from 'mongoose';
-import { ResponseMessage, Users } from 'src/decorator/customize';
 import aqp from 'api-query-params';
 
 @Injectable()

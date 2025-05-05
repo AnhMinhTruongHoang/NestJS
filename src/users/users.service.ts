@@ -1,44 +1,26 @@
-import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
-import { ConfigService } from '@nestjs/config';
 import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from './user.interface';
 import { Users } from 'src/decorator/customize';
 import aqp from 'api-query-params';
+import { USER_ROLE } from 'src/databases/sample';
+import { Roles, RolesDocument } from 'src/roles/schemas/role.schemas';
 
 @Injectable()
-export class UsersService implements OnModuleInit {
+export class UsersService {
   constructor(
     @InjectModel(User.name)
     private userModel: SoftDeleteModel<UserDocument>,
-    private configService: ConfigService,
+
+    @InjectModel(Roles.name)
+    private roleModel: SoftDeleteModel<RolesDocument>,
   ) {}
-
-  async onModuleInit() {
-    const existingUser = await this.userModel.findOne({
-      email: 'adminfb@gmail.com',
-    });
-    if (!existingUser) {
-      const plainPassword =
-        this.configService.get<string>('INIT_USER_PASSWORD') || '123456';
-
-      const salt = genSaltSync(10);
-      const hash = hashSync(plainPassword, salt);
-
-      await this.userModel.insertMany([
-        {
-          name: 'Erip',
-          email: 'adminfb@gmail.com',
-          password: hash,
-        },
-      ]);
-    }
-  }
 
   getHashPassword = (plain: string) => {
     const salt = genSaltSync(10);
@@ -165,7 +147,7 @@ export class UsersService implements OnModuleInit {
       .findOne({
         email: username,
       })
-      .populate({ path: 'role', select: { name: 1, permissions: 1 } });
+      .populate({ path: 'role', select: { name: 1 } });
   }
 
   async findByEmail(email: string) {
@@ -180,6 +162,7 @@ export class UsersService implements OnModuleInit {
 
   async register(user: RegisterUserDto) {
     const { name, email, password, age, gender, address } = user;
+    const userRole = await this.roleModel.findOne({ name: USER_ROLE }); /// get role from role servives
     const hashPassword = this.getHashPassword(password);
 
     const isExist = await this.userModel.findOne({ email });
@@ -194,7 +177,7 @@ export class UsersService implements OnModuleInit {
       age,
       gender,
       address,
-      role: 'USER',
+      role: userRole?._id,
     });
 
     return newRegister;
@@ -207,6 +190,9 @@ export class UsersService implements OnModuleInit {
 
   findUserByToken = async (refreshToken: string) => {
     ///update user token
-    return await this.userModel.findOne({ refreshToken });
+    return await this.userModel.findOne({ refreshToken }).populate({
+      path: 'role',
+      select: { name: 1 },
+    });
   };
 }

@@ -10,5 +10,6 @@ import { Resume, ResumeSchema } from './schemas/resume.schemas';
   ],
   controllers: [ResumesController],
   providers: [ResumesService],
+  exports: [ResumesService],
 })
 export class ResumesModule {}
