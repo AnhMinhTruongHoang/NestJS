@@ -64,9 +64,7 @@ export class UsersService {
     //add logic check email
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
-      throw new BadRequestException(
-        `Email: ${email} đã tồn tại trên hệ thống. Vui lòng sử dụng email khác.`,
-      );
+      throw new BadRequestException(`Email: ${email} is existed !.`);
     }
 
     //fetch user role
@@ -162,8 +160,9 @@ export class UsersService {
     if (!mongoose.Types.ObjectId.isValid(id)) return `not found user`;
 
     const foundUser = await this.userModel.findById(id);
+
     if (foundUser && foundUser.email === 'admin@gmail.com') {
-      throw new BadRequestException('Không thể xóa tài khoản admin@gmail.com');
+      throw new BadRequestException('can not delete admin@gmail.com');
     }
 
     await this.userModel.updateOne(
