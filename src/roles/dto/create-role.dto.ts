@@ -1,28 +1,19 @@
-import {
-  IsString,
-  IsBoolean,
-  IsArray,
-  IsMongoId,
-  IsNotEmpty,
-} from 'class-validator';
+import { IsArray, IsBoolean, IsMongoId, IsNotEmpty } from 'class-validator';
 import mongoose from 'mongoose';
 
 export class CreateRoleDto {
-  @IsNotEmpty({ message: 'name must not be empty' })
+  @IsNotEmpty({ message: 'name không được để trống' })
   name: string;
 
-  @IsNotEmpty({ message: 'description must not be empty' })
+  @IsNotEmpty({ message: 'description không được để trống' })
   description: string;
 
-  @IsNotEmpty({ message: 'isActive must not be empty' })
-  @IsBoolean({ message: 'isActive must be a boolean value' })
+  @IsNotEmpty({ message: 'isActive không được để trống' })
+  @IsBoolean({ message: 'isActive có giá trị boolean' })
   isActive: boolean;
 
-  @IsNotEmpty({ message: 'permissions must not be empty' })
-  @IsMongoId({
-    each: true,
-    message: 'each permission must be a Mongo ObjectId',
-  })
-  @IsArray({ message: 'permissions must be an array' })
+  @IsNotEmpty({ message: 'permissions không được để trống' })
+  @IsMongoId({ each: true, message: 'each permission là mongo object id' })
+  @IsArray({ message: 'permissions có định dạng là array' })
   permissions: mongoose.Schema.Types.ObjectId[];
 }

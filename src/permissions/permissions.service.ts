@@ -5,14 +5,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
-import { Permission, PermissionsDocument } from './schemas/permission.schemas';
+import { Permission, PermissionDocument } from './schemas/permission.schemas';
 import { IUser } from 'src/users/user.interface';
 
 @Injectable()
 export class PermissionsService {
   constructor(
     @InjectModel(Permission.name)
-    private permissionModel: SoftDeleteModel<PermissionsDocument>,
+    private permissionModel: SoftDeleteModel<PermissionDocument>,
   ) {}
 
   async create(createPermissionDto: CreatePermissionDto, user: IUser) {

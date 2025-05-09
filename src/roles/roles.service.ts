@@ -6,14 +6,15 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
 import { ADMIN_ROLE } from 'src/databases/sample';
-import { Roles, RolesDocument } from './schemas/role.schemas';
+
 import { IUser } from 'src/users/user.interface';
+import { Role, RoleDocument } from './schemas/role.schemas';
 
 @Injectable()
 export class RolesService {
   constructor(
-    @InjectModel(Roles.name)
-    private roleModel: SoftDeleteModel<RolesDocument>,
+    @InjectModel(Role.name)
+    private roleModel: SoftDeleteModel<RoleDocument>,
   ) {}
 
   async create(createRoleDto: CreateRoleDto, user: IUser) {
@@ -115,7 +116,7 @@ export class RolesService {
   async remove(id: string, user: IUser) {
     const foundRole = await this.roleModel.findById(id);
     if (foundRole.name === ADMIN_ROLE) {
-      throw new BadRequestException('Can not delete ADMIN');
+      throw new BadRequestException('Không thể xóa role ADMIN');
     }
     await this.roleModel.updateOne(
       { _id: id },

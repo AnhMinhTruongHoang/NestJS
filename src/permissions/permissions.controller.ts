@@ -9,10 +9,10 @@ import {
   Query,
 } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
+import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { ResponseMessage, Users } from 'src/decorator/customize';
 import { IUser } from 'src/users/user.interface';
-import { CreatePermissionDto } from './dto/create-permission.dto';
 
 @Controller('permissions')
 export class PermissionsController {
@@ -28,7 +28,7 @@ export class PermissionsController {
   }
 
   @Get()
-  @ResponseMessage('Fetch Resume with paginate')
+  @ResponseMessage('Fetch permissions with paginate')
   findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') limit: string,
@@ -38,13 +38,13 @@ export class PermissionsController {
   }
 
   @Get(':id')
-  @ResponseMessage('Get Permission by Id')
+  @ResponseMessage('Fetch a permission by id')
   findOne(@Param('id') id: string) {
     return this.permissionsService.findOne(id);
   }
 
   @Patch(':id')
-  @ResponseMessage('Update New resume')
+  @ResponseMessage('Update a permission')
   update(
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,
@@ -54,7 +54,7 @@ export class PermissionsController {
   }
 
   @Delete(':id')
-  @ResponseMessage('Delete permission by Id')
+  @ResponseMessage('Delete a permission')
   remove(@Param('id') id: string, @Users() user: IUser) {
     return this.permissionsService.remove(id, user);
   }

@@ -1,15 +1,17 @@
-import { IsString } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
+
+// Data Transfer Object (DTO) // class = { }
 
 export class CreatePermissionDto {
-  @IsString()
+  @IsNotEmpty({ message: 'Name must not be empty' })
   name: string;
 
-  @IsString()
+  @IsNotEmpty({ message: 'API path must not be empty' })
   apiPath: string;
 
-  @IsString()
+  @IsNotEmpty({ message: 'Method must not be empty' })
   method: string;
 
-  @IsString()
+  @IsNotEmpty({ message: 'Module must not be empty' })
   module: string;
 }

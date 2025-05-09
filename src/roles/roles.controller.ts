@@ -8,23 +8,24 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { RolesService } from './roles.service';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { IUser } from 'src/users/user.interface';
 import { ResponseMessage, Users } from 'src/decorator/customize';
+import { CreateRoleDto } from 'src/roles/dto/create-role.dto';
+import { UpdateRoleDto } from 'src/roles/dto/update-role.dto';
+import { RolesService } from 'src/roles/roles.service';
+import { IUser } from 'src/users/user.interface';
 
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Post()
+  @ResponseMessage('Create a new role')
   create(@Body() createRoleDto: CreateRoleDto, @Users() user: IUser) {
     return this.rolesService.create(createRoleDto, user);
   }
 
   @Get()
-  @ResponseMessage('Fetch Role with paginate')
+  @ResponseMessage('Fetch roles with paginate')
   findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') limit: string,
@@ -40,7 +41,7 @@ export class RolesController {
   }
 
   @Patch(':id')
-  @ResponseMessage('Update New Role')
+  @ResponseMessage('Update a role')
   update(
     @Param('id') id: string,
     @Body() updateRoleDto: UpdateRoleDto,
@@ -50,6 +51,7 @@ export class RolesController {
   }
 
   @Delete(':id')
+  @ResponseMessage('Delete a role')
   remove(@Param('id') id: string, @Users() user: IUser) {
     return this.rolesService.remove(id, user);
   }

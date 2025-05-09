@@ -2,29 +2,21 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Permission } from 'src/permissions/schemas/permission.schemas';
 
-export type RolesDocument = HydratedDocument<Roles>;
+export type RoleDocument = HydratedDocument<Role>;
 
 @Schema({ timestamps: true })
-export class Roles {
-  @Prop({ required: true })
+export class Role {
+  @Prop()
   name: string;
 
-  @Prop({ required: true })
+  @Prop()
   description: string;
 
-  @Prop({
-    type: [{ type: [mongoose.Schema.Types.ObjectId], ref: Permission.name }],
-  })
-  permissions: mongoose.Types.ObjectId[];
-
-  @Prop({ required: true })
+  @Prop()
   isActive: boolean;
 
-  @Prop()
-  isDeleted: boolean;
-
-  @Prop()
-  createdAt: Date;
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: Permission.name })
+  permissions: Permission[];
 
   @Prop({ type: Object })
   createdBy: {
@@ -32,23 +24,29 @@ export class Roles {
     email: string;
   };
 
-  @Prop()
-  updatedAt: Date;
-
   @Prop({ type: Object })
   updatedBy: {
     _id: mongoose.Schema.Types.ObjectId;
     email: string;
   };
 
-  @Prop()
-  deletedAt: Date;
-
   @Prop({ type: Object })
   deletedBy: {
     _id: mongoose.Schema.Types.ObjectId;
     email: string;
   };
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
+
+  @Prop()
+  isDeleted: boolean;
+
+  @Prop()
+  deletedAt: Date;
 }
 
-export const RolesSchema = SchemaFactory.createForClass(Roles);
+export const RoleSchema = SchemaFactory.createForClass(Role);

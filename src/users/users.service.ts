@@ -8,9 +8,9 @@ import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import aqp from 'api-query-params';
 import { USER_ROLE } from 'src/databases/sample';
-import { Roles, RolesDocument } from 'src/roles/schemas/role.schemas';
 import { Users } from 'src/decorator/customize';
 import { IUser } from './user.interface';
+import { Role, RoleDocument } from 'src/roles/schemas/role.schemas';
 
 @Injectable()
 export class UsersService {
@@ -18,8 +18,8 @@ export class UsersService {
     @InjectModel(UserM.name)
     private userModel: SoftDeleteModel<UserDocument>,
 
-    @InjectModel(Roles.name)
-    private roleModel: SoftDeleteModel<RolesDocument>,
+    @InjectModel(Role.name)
+    private roleModel: SoftDeleteModel<RoleDocument>,
   ) {}
 
   getHashPassword = (password: string) => {
@@ -35,9 +35,7 @@ export class UsersService {
     //add logic check email
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
-      throw new BadRequestException(
-        `Email: ${email} đã tồn tại trên hệ thống. Vui lòng sử dụng email khác.`,
-      );
+      throw new BadRequestException(`Email: ${email} already exist !.`);
     }
 
     const hashPassword = this.getHashPassword(password);
