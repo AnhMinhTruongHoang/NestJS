@@ -21,7 +21,7 @@ export class MailController {
     private subscriberModel: SoftDeleteModel<SubscriberDocument>,
 
     @InjectModel(Jobs.name)
-    private jobModel: SoftDeleteModel<JobsDocument>,
+    private jobsModel: SoftDeleteModel<JobsDocument>,
   ) {}
 
   @Cron(CronExpression.EVERY_30_SECONDS)
@@ -35,7 +35,7 @@ export class MailController {
     const subscribers = await this.subscriberModel.find({});
     for (const subs of subscribers) {
       const subsSkills = subs.skills;
-      const jobWithMatchingSkills = await this.jobModel.find({
+      const jobWithMatchingSkills = await this.jobsModel.find({
         skills: { $in: subsSkills },
       });
       if (jobWithMatchingSkills?.length) {
@@ -51,7 +51,7 @@ export class MailController {
 
         await this.mailerService.sendMail({
           to: 'minhlapro03@gmail.com',
-          from: '"Support Team" <support@example.com>', // override default from
+          from: '"Support Team" <support@example.com>',
           subject: 'Welcome to Nice App! Confirm your Email',
           template: 'new-job',
           context: {

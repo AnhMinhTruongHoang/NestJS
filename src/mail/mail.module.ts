@@ -6,8 +6,10 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Subscriber } from 'rxjs';
-import { SubscriberSchema } from 'src/subscribers/schemas/subscriber.schemas';
+import {
+  Subscriber,
+  SubscriberSchema,
+} from 'src/subscribers/schemas/subscriber.schemas';
 import { Jobs, JobsSchema } from 'src/jobs/schemas/job.schemas';
 
 @Module({

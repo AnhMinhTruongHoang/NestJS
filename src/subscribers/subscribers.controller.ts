@@ -11,7 +11,12 @@ import {
 import { SubscribersService } from './subscribers.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
 import { UpdateSubscriberDto } from './dto/update-subscriber.dto';
-import { Public, ResponseMessage, Users } from 'src/decorator/customize';
+import {
+  Public,
+  ResponseMessage,
+  SkipCheckPermission,
+  Users,
+} from 'src/decorator/customize';
 import { IUser } from 'src/users/user.interface';
 import mongoose from 'mongoose';
 
@@ -39,6 +44,13 @@ export class SubscribersController {
     return this.subscribersService.findAll(+currentPage, +limit, qs);
   }
 
+  @Post('skills')
+  @ResponseMessage("Get subscriber's skills")
+  @SkipCheckPermission()
+  getUserSkills(@Users() user: IUser) {
+    return this.subscribersService.getSkills(user);
+  }
+
   @Get(':id')
   @Public()
   @ResponseMessage('fetch Jobs by id')
@@ -48,13 +60,12 @@ export class SubscribersController {
   }
 
   @ResponseMessage('Update a Subscriber !')
-  @Patch(':id')
+  @SkipCheckPermission()
   update(
-    @Param('id') id: string,
     @Body() updateSubscriberDto: UpdateSubscriberDto,
     @Users() user: IUser,
   ) {
-    return this.subscribersService.update(id, updateSubscriberDto, user);
+    return this.subscribersService.update(updateSubscriberDto, user);
   }
 
   @ResponseMessage('Delete a Jobs')
