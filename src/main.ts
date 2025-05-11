@@ -34,7 +34,11 @@ async function bootstrap() {
   }); ///////// fix loi cors
 
   /// valid
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  );
 
   ////// import link config
   app.useStaticAssets(join(__dirname, '..', 'public'));
