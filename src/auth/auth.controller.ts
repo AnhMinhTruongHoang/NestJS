@@ -14,6 +14,7 @@ import { RolesService } from 'src/roles/roles.service';
 import { Public, ResponseMessage, Users } from 'src/decorator/customize';
 import { LocalAuthGuard } from './local.auth.guard';
 import { IUser } from 'src/users/user.interface';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -24,6 +25,8 @@ export class AuthController {
 
   @Public()
   @UseGuards(LocalAuthGuard)
+  @UseGuards(ThrottlerGuard)
+  @Throttle(5, 60)
   @Post('/login')
   @ResponseMessage('User Login')
   handleLogin(@Req() req, @Res({ passthrough: true }) response: Response) {

@@ -20,7 +20,7 @@ export class MulterConfigService implements MulterOptionsFactory {
         return;
       }
       switch (error.code) {
-        case 'EEXIST':
+        case 'EXIST':
           // Error:
           // Requested location already exists, but it's not a directory.
           break;
