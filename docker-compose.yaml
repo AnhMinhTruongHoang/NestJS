@@ -1,8 +1,8 @@
-# version: '3.8'
-#MongoDB 5.0+ requires a CPU with AVX support, => sử dụng image: mongo:4.4
+version: '3.8'
+
 services:
   db-mongo:
-    image: mongo:6.0.6
+    image: mongo:6.0.6 # Nếu dùng máy không hỗ trợ AVX => đổi thành mongo:4.4
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 123456
@@ -17,18 +17,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # restart: unless-stopped
     environment:
       - PORT=8080
       - NODE_ENV=production
-      - MONGO_URL=mongodb://root:123456@db-mongo:27017/hoidanit?authSource=admin
-      # - DB_HOST=host.docker.internal
-    expose:
-      - 8080
+      - MONGO_URL=mongodb://root:123456@db-mongo:27017/nestJsBase?authSource=admin
+
     ports:
       - 8080:8080
+    expose:
+      - 8080
+    depends_on:
+      - db-mongo
 
 volumes:
   mongodb:
-
-    # docker compose -p hoidanit-nest up -d
+# docker compose -p base-nest up -d --build
