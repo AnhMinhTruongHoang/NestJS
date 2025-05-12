@@ -10,7 +10,9 @@ import {
   SubscriberDocument,
 } from 'src/subscribers/schemas/subscriber.schemas';
 import { Jobs, JobsDocument } from 'src/jobs/schemas/job.schemas';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('mail')
 @Controller('mail')
 export class MailController {
   constructor(

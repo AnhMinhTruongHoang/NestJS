@@ -8,12 +8,14 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { ResponseMessage, Users } from 'src/decorator/customize';
 import { CreateRoleDto } from 'src/roles/dto/create-role.dto';
 import { UpdateRoleDto } from 'src/roles/dto/update-role.dto';
 import { RolesService } from 'src/roles/roles.service';
 import { IUser } from 'src/users/user.interface';
 
+@ApiTags('roles')
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
