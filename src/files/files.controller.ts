@@ -29,6 +29,7 @@ export class FilesController {
   @ResponseMessage('Upload Single File')
   @UseInterceptors(FileInterceptor('fileUpload'))
   @UseFilters(new HttpExceptionFilter())
+  
   uploadFile(@UploadedFile() file: Express.Multer.File) {
     return {
       fileName: file.filename,
