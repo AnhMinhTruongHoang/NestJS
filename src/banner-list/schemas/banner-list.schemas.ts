@@ -5,9 +5,6 @@ export type BannersDocument = HydratedDocument<Banners>;
 
 @Schema({ timestamps: true })
 export class Banners {
-  @Prop({ required: true })
-  _id: mongoose.Schema.Types.ObjectId;
-
   @Prop({ required: false })
   title: string;
 
