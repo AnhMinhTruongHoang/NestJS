@@ -7,25 +7,49 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { BannerListService } from './banner-list.service';
 import { CreateBannerListDto } from './dto/create-banner-list.dto';
 import { UpdateBannerListDto } from './dto/update-banner-list.dto';
 import { Public, ResponseMessage, Users } from 'src/decorator/customize';
 import { IUser } from 'src/users/user.interface';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('banner-list')
 export class BannerListController {
   constructor(private readonly bannerListService: BannerListService) {}
 
-  @Post()
-  create(
-    @Body() createBannerListDto: CreateBannerListDto,
-    @Users() user: IUser,
-  ) {
-    return this.bannerListService.create(createBannerListDto, user);
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './public/uploads/banners',
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, `banner-${uniqueSuffix}${extname(file.originalname)}`);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (!file.mimetype.startsWith('image/')) {
+          return cb(new Error('Only image files are allowed!'), false);
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  @Public()
+  async uploadBanner(@UploadedFile() file: Express.Multer.File) {
+    if (!file) throw new Error('File not provided');
+    return {
+      imageUrl: `/uploads/banners/${file.filename}`,
+    };
   }
-
+  ////////////////
   @Get()
   @Public()
   @ResponseMessage('Fetch List banner Success !')

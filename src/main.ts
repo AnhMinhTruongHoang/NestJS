@@ -28,12 +28,18 @@ async function bootstrap() {
   //////////cookies
   app.use(cookieParser());
 
+  // app.enableCors({
+  //   origin: true,
+  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  //   preflightContinue: false,
+  //   credentials: true,
+  // }); ///////// fix loi cors
+
   app.enableCors({
-    origin: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    preflightContinue: false,
+    origin: 'http://localhost:3000', // Cụ thể với frontend Vite
     credentials: true,
-  }); ///////// fix loi cors
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  });
 
   /// valid
   app.useGlobalPipes(
