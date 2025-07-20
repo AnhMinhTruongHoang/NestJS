@@ -17,7 +17,6 @@ import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard } from './guards/local.auth.guard';
 import { MESSAGES } from '@nestjs/core/constants';
-import { GoogleAuthGuard } from './guards/google.auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 
@@ -39,30 +38,6 @@ export class AuthController {
   @ResponseMessage('User Login')
   handleLogin(@Req() req, @Res({ passthrough: true }) response: Response) {
     return this.authService.login(req.user, response);
-  }
-
-  @Public()
-  @UseGuards(GoogleAuthGuard)
-  @Get('google/login')
-  @ResponseMessage('Google Login')
-  googleLogin(@Req() req, @Res({ passthrough: true }) response: Response) {
-    return this.authService.login(req.user, response);
-  }
-
-  // auth.controller.ts
-  @Public()
-  @Get('google/redirect')
-  @UseGuards(GoogleAuthGuard)
-  async googleRedirect(@Req() req, @Res() res: Response) {
-    const user = req.user; // Do strategy đã trả về user
-
-    const loginResult = await this.authService.login(user, res);
-
-    return res.redirect(
-      `${this.configService.get<string>('GOOGLE_SUCCESS_REDIRECT')}?token=${
-        loginResult.access_token
-      }`,
-    );
   }
 
   //////////////

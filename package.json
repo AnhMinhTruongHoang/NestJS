@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "-": "^0.0.1",
-    "@nestjs-modules/mailer": "1.8.1",
+    "@nestjs-modules/mailer": "2.0.2",
     "@nestjs/common": "9.4.0",
     "@nestjs/config": "2.3.1",
     "@nestjs/core": "9.4.0",
@@ -68,7 +68,7 @@
     "@types/ms": "^0.7.31",
     "@types/multer": "^1.4.7",
     "@types/node": "18.15.11",
-    "@types/nodemailer": "^6.4.8",
+    "@types/nodemailer": "^6.4.17",
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/passport-jwt": "^3.0.8",
     "@types/passport-local": "^1.0.35",

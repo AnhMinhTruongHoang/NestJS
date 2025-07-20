@@ -30,11 +30,8 @@ export class User {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name })
   role: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ type: Object })
-  company: {
-    _id: mongoose.Schema.Types.ObjectId;
-    name: string;
-  };
+  @Prop()
+  company: string;
 
   @Prop()
   isDeleted: boolean;

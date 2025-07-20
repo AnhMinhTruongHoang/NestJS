@@ -13,12 +13,11 @@ import {
 import mongoose from 'mongoose';
 
 class Company {
-  //////////// validate {}
-  @IsNotEmpty()
-  _id: mongoose.Schema.Types.ObjectId;
+  @IsOptional()
+  _id?: mongoose.Schema.Types.ObjectId;
 
-  @IsNotEmpty()
-  name: string;
+  @IsOptional()
+  name?: string;
 }
 
 export class CreateUserDto {
@@ -53,11 +52,11 @@ export class CreateUserDto {
   @IsString()
   avatarUrl?: string;
 
-  @IsNotEmptyObject()
-  @IsObject()
+  @ApiProperty({ required: false, type: () => Company })
+  @IsOptional()
   @ValidateNested()
   @Type(() => Company)
-  company: Company; //// {} type valid
+  company?: Company;
 }
 
 ///////////// register valid

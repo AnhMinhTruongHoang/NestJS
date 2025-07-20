@@ -1,7 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { Public, ResponseMessage } from 'src/decorator/customize';
-import { MailerService } from '@nestjs-modules/mailer';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -11,6 +10,8 @@ import {
 } from 'src/subscribers/schemas/subscriber.schemas';
 import { Jobs, JobsDocument } from 'src/jobs/schemas/job.schemas';
 import { ApiTags } from '@nestjs/swagger';
+import { UsersService } from 'src/users/users.service';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @ApiTags('mail')
 @Controller('mail')
@@ -18,6 +19,7 @@ export class MailController {
   constructor(
     private readonly mailService: MailService,
     private mailerService: MailerService,
+    private userService: UsersService,
 
     @InjectModel(Subscriber.name)
     private subscriberModel: SoftDeleteModel<SubscriberDocument>,
@@ -53,9 +55,9 @@ export class MailController {
 
         await this.mailerService.sendMail({
           to: 'minhlapro03@gmail.com',
-          from: '"Support Team" <support@example.com>',
+          from: 'minhlapro01@gmail.com',
           subject: 'Welcome to Nice App! Confirm your Email',
-          template: 'new-job',
+          template: 'newJob.hbs',
           context: {
             receiver: subs.name,
             jobs: jobs,

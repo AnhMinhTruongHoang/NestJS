@@ -11,7 +11,6 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { BannerListService } from './banner-list.service';
-import { CreateBannerListDto } from './dto/create-banner-list.dto';
 import { UpdateBannerListDto } from './dto/update-banner-list.dto';
 import { Public, ResponseMessage, Users } from 'src/decorator/customize';
 import { IUser } from 'src/users/user.interface';
