@@ -45,6 +45,15 @@ export class User {
     email: string;
   };
 
+  @Prop({ default: false })
+  isActive: string;
+
+  @Prop()
+  codeId: string;
+
+  @Prop()
+  codeExpired: Date;
+
   @Prop()
   updatedAt: Date;
 

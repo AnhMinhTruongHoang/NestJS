@@ -10,13 +10,17 @@ import aqp from 'api-query-params';
 import { USER_ROLE } from 'src/databases/sample';
 import { Users } from 'src/decorator/customize';
 import { IUser } from './user.interface';
+import { v4 as uuidv4 } from 'uuid';
 import { Role, RoleDocument } from 'src/roles/schemas/role.schemas';
+import { MailerService } from '@nestjs-modules/mailer';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(UserM.name)
     private userModel: SoftDeleteModel<UserDocument>,
+    private mailerService: MailerService,
 
     @InjectModel(Role.name)
     private roleModel: SoftDeleteModel<RoleDocument>,
@@ -28,9 +32,10 @@ export class UsersService {
     return hash;
   };
 
+  /// create
+
   async create(createUserDto: CreateUserDto, @Users() user: IUser) {
-    const { name, email, password, age, gender, address, role, company } =
-      createUserDto;
+    const { name, email, password, age, gender, address, role } = createUserDto;
 
     //add logic check email
     const isExist = await this.userModel.findOne({ email });
@@ -48,14 +53,58 @@ export class UsersService {
       gender,
       address,
       role,
-      company,
       createdBy: {
         _id: user._id,
         email: user.email,
       },
     });
+
+    ////
+
     return newUser;
   }
+
+  //// register
+
+  async register(user: RegisterUserDto) {
+    const { name, email, password, age, gender, address } = user;
+    //add logic check email
+    const isExist = await this.userModel.findOne({ email });
+    if (isExist) {
+      throw new BadRequestException(`Email: ${email} is existed !.`);
+    }
+
+    //fetch user role
+    const userRole = await this.roleModel.findOne({ name: USER_ROLE });
+    const codeId = uuidv4();
+
+    const hashPassword = this.getHashPassword(password);
+    let newRegister = await this.userModel.create({
+      name,
+      email,
+      password: hashPassword,
+      age,
+      gender,
+      address,
+      role: userRole?._id,
+      isActive: false,
+      codeId: codeId,
+      codeExpired: dayjs().add(1, 'day'),
+    });
+    ////send mail
+    this.mailerService.sendMail({
+      to: email, // List of receivers
+      subject: 'Activate your account', // Subject line
+      template: 'register.hbs',
+      context: {
+        name: name ?? email,
+        activationCode: codeId,
+      },
+    });
+
+    return newRegister;
+  }
+
   ////////////// gg create
   async createFromGoogle(userData: {
     email: string;
@@ -78,31 +127,6 @@ export class UsersService {
   }
 
   //////////////////////
-
-  async register(user: RegisterUserDto) {
-    const { name, email, password, age, gender, address } = user;
-    //add logic check email
-    const isExist = await this.userModel.findOne({ email });
-    if (isExist) {
-      throw new BadRequestException(`Email: ${email} is existed !.`);
-    }
-
-    //fetch user role
-    const userRole = await this.roleModel.findOne({ name: USER_ROLE });
-
-    const hashPassword = this.getHashPassword(password);
-    let newRegister = await this.userModel.create({
-      name,
-      email,
-      password: hashPassword,
-      age,
-      gender,
-      address,
-      role: userRole?._id,
-    });
-    return newRegister;
-  }
-
   async findAll(currentPage: number, limit: number, qs: string) {
     const { filter, sort, population } = aqp(qs);
     delete filter.current;

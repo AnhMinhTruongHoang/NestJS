@@ -19,6 +19,7 @@ import { LocalAuthGuard } from './guards/local.auth.guard';
 import { MESSAGES } from '@nestjs/core/constants';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -27,6 +28,7 @@ export class AuthController {
     private authService: AuthService,
     private rolesService: RolesService,
     private configService: ConfigService,
+    private mailerService: MailerService,
   ) {}
 
   @Public()
@@ -74,5 +76,24 @@ export class AuthController {
     @Users() user: IUser,
   ) {
     return this.authService.logout(response, user);
+  }
+
+  ///send mail
+
+  @Get('mail')
+  @Public()
+  testMail() {
+    this.mailerService.sendMail({
+      to: 'minhlapro01@gmail.com', // List of receivers
+      subject: 'Testing Nest MailerModule ✔', // Subject line
+      text: 'welcome', // Plaintext body
+      template: 'register',
+      context: {
+        name: 'minh',
+        activationCode: 123,
+      },
+    });
+
+    return 'ok';
   }
 }
